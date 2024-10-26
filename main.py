@@ -131,7 +131,12 @@ def parallel_lp():
         #print(f"Total BB = {total_BB}")
         #print(f"Total subsidy = {total_BB + total_IR + total_S}")
         total_subsidy = total_BB + total_IR + total_S
-        return size, total_subsidy  # Return the number of processors and subsidy
+        # Return results only from the root process
+        return size, total_subsidy
+
+    else:
+        # Non-root processes return none values to avoid NoneType errors
+        return None, None
 
 if __name__ == "__main__":
     start_time = time.perf_counter()
