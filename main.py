@@ -23,6 +23,7 @@ def load_routes():
 
 
 def lp(route, standalone_cost_degree_2,N_whole):
+    time.sleep(0.01) #just to see the difference more clearly. comment this line in actual run
     mdl = Model(f'lp{route}')
     mdl.Params.OutputFlag = 0
     N_lp = route[1:-1]
