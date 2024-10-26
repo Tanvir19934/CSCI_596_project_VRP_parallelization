@@ -1,0 +1,7 @@
+utils.py
+
+# Ignore all .pkl files
+*.pkl
+
+# Ignore all folders (and their contents)
+*/
