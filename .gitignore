@@ -1,7 +1,6 @@
 utils.py
 config.py
 .DS_Store
-scratch_mpi.py
 
 # Ignore all .pkl files
 *.pkl
