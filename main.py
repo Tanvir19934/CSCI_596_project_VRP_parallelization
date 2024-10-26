@@ -4,6 +4,7 @@ from config import *
 import time
 from utils import ev_travel_cost, standalone_cost_degree_2
 from mpi4py import MPI
+import csv
 
 def load_routes():
     filenames = ['data.pkl']
@@ -123,14 +124,22 @@ def parallel_lp():
                 ev_cost, _ = ev_travel_cost(route)
                 total_ev_cost += ev_cost
 
-        print(f"Total payment = {total_p, total_ev_cost}")
-        print(f"Total stability = {total_S}")
-        print(f"Total IR = {total_IR}")
-        print(f"Total BB = {total_BB}")
-        print(f"Total subsidy = {total_BB + total_IR + total_S}")
+        #print(f"Total payment = {total_p, total_ev_cost}")
+        #print(f"Total stability = {total_S}")
+        #print(f"Total IR = {total_IR}")
+        #print(f"Total BB = {total_BB}")
+        #print(f"Total subsidy = {total_BB + total_IR + total_S}")
+        return total_BB + total_IR + total_S
 
 if __name__ == "__main__":
     start = time.perf_counter()
-    parallel_lp()
+    total_subsidy = parallel_lp()
     end = time.perf_counter()
-    print(f"Execution time = {end - start} seconds")
+    #print(f"Execution time = {end - start} seconds")
+        # Write the results to a CSV file
+    with open('results.csv', 'w', newline='') as csvfile:
+        csv_writer = csv.writer(csvfile)
+        # Write the header
+        csv_writer.writerow([ 
+            'Total Subsidy', 'Execution Time (seconds)'
+        ])
