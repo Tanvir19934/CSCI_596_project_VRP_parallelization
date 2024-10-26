@@ -3,6 +3,7 @@ import pickle
 from config import *
 import time
 from utils import ev_travel_cost, standalone_cost_degree_2
+from mpi4py import MPI
 
 def load_routes():
     filenames = ['data.pkl']
@@ -73,50 +74,63 @@ def lp(route, standalone_cost_degree_2,N_whole):
     e_BB_result = get_vars('e_BB')
     e_IR_result = get_vars('e_IR')
 
-    return p_result,e_S_result,e_BB_result,e_IR_result
+    return p_result,e_S_result,e_BB_result,e_IR_result,route
+
+def parallel_lp():
+    # Initialize MPI
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    size = comm.Get_size()
+
+    # Load routes on the root process and scatter them
+    if rank == 0:
+        ev_routes = load_routes()
+        chunks = [ev_routes[i::size] for i in range(size)]  # Divide routes evenly across processes
+    else:
+        chunks = None
+
+    # Scatter the route chunks to all processes
+    routes = comm.scatter(chunks, root=0)
+
+    # Each process processes its chunk of routes
+    local_results = []
+    for route in routes:
+        result = lp(route, standalone_cost_degree_2, N)
+        local_results.append(result)
+
+    # Gather results at the root process
+    all_results = comm.gather(local_results, root=0)
+
+    if rank == 0:
+        # Combine results from all processes
+        p_result_dict, e_S_result_dict = {}, {}
+        e_BB_result_dict, e_IR_result_dict = {}, {}
+        total_p, total_S, total_IR, total_BB, total_ev_cost = 0, 0, 0, 0, 0
+
+        for process_results in all_results:
+            for p_result, e_S_result, e_BB_result, e_IR_result, route in process_results:
+                # Store the results
+                p_result_dict.update(p_result)
+                e_S_result_dict.update(e_S_result)
+                e_BB_result_dict.update(e_BB_result)
+                e_IR_result_dict.update(e_IR_result)
+
+                # Aggregate totals
+                total_p += sum(p_result.values())
+                total_S += sum(e_S_result.values())
+                total_IR += sum(e_IR_result.values())
+                total_BB += sum(e_BB_result.values())
+                ev_cost, _ = ev_travel_cost(route)
+                total_ev_cost += ev_cost
+
+        print(f"Total payment = {total_p, total_ev_cost}")
+        print(f"Total stability = {total_S}")
+        print(f"Total IR = {total_IR}")
+        print(f"Total BB = {total_BB}")
+        print(f"Total subsidy = {total_BB + total_IR + total_S}")
 
 if __name__ == "__main__":
     start = time.perf_counter()
-    #standalone_cost_degree_2 = standalone_cost(1)
-    ev_routes = load_routes()
-    N_whole = N
-
-    p_result_dict = {} 
-    e_S_result_dict = {}
-    e_BB_result_dict = {}
-    e_IR_result_dict = {}
-    total_p = 0
-    total_S = 0
-    total_IR = 0
-    total_BB = 0
-    total_ev_cost = 0
-    for route in ev_routes:
-        p_result,e_S_result,e_BB_result,e_IR_result = lp(route,standalone_cost_degree_2,N_whole)
-        p_result_dict[f"{route}"] = p_result
-        e_S_result_dict[f"{route}"] = e_S_result
-        e_BB_result_dict[f"{route}"] = e_BB_result
-        e_IR_result_dict[f"{route}"] = e_IR_result
-        total_p += sum(p_result.values())
-        total_S += sum(e_S_result.values())
-        total_IR += sum(e_IR_result.values())
-        total_BB += sum(e_BB_result.values())
-        ev_cost, _ = ev_travel_cost(route)
-        total_ev_cost +=  ev_cost
+    parallel_lp()
     end = time.perf_counter()
-    print(f"total payment = {total_p,total_ev_cost}")
-    print(f"total stability = {total_S}")
-    print(f"total IR = {total_IR}")
-    print(f"total BB = {total_BB}")
-    print(f"total subsidy = {total_BB+total_IR+total_S}")
-    print(f"Execution time = {end-start}")
-    print(p_result_dict)
-    print(e_S_result_dict)
-
-    node = 8
-    l = []
-    for item in standalone_cost_degree_2:
-        if item[0]==node or item[1]==node:
-            l.append(standalone_cost_degree_2[item][node])
-    print(min(l))
-
-    2
+    print(f"Execution time = {end - start} seconds")

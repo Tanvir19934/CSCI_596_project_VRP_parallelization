@@ -11,7 +11,7 @@ def post_process_subtour(subtour):
 # Initialize MPI
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
-size = comm.Get_size()
+size = 3
 print(size)
 # Assume we have N subtours
 N = 100  # Total number of subtours
