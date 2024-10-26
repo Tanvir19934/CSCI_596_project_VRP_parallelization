@@ -24,6 +24,7 @@ def load_routes():
 
 def lp(route, standalone_cost_degree_2,N_whole):
     mdl = Model(f'lp{route}')
+    mdl.Params.OutputFlag = 0
     N_lp = route[1:-1]
     V_lp = route[0:-1]
     C_route, _ = ev_travel_cost(route)
@@ -129,17 +130,24 @@ def parallel_lp():
         #print(f"Total IR = {total_IR}")
         #print(f"Total BB = {total_BB}")
         #print(f"Total subsidy = {total_BB + total_IR + total_S}")
-        return total_BB + total_IR + total_S
+        total_subsidy = total_BB + total_IR + total_S
+        return size, total_subsidy  # Return the number of processors and subsidy
 
 if __name__ == "__main__":
-    start = time.perf_counter()
-    total_subsidy = parallel_lp()
-    end = time.perf_counter()
-    #print(f"Execution time = {end - start} seconds")
-        # Write the results to a CSV file
-    with open('results.csv', 'w', newline='') as csvfile:
+    start_time = time.perf_counter()
+    size, total_subsidy = parallel_lp()
+    end_time = time.perf_counter()
+    execution_time = end_time - start_time
+
+    # Write results to CSV in append mode
+    with open('results.csv', 'a', newline='') as csvfile:
         csv_writer = csv.writer(csvfile)
-        # Write the header
-        csv_writer.writerow([ 
-            'Total Subsidy', 'Execution Time (seconds)'
-        ])
+
+        # Write header only if the file is empty
+        if csvfile.tell() == 0:
+            csv_writer.writerow(['num_processor', 'Total Subsidy', 'Execution Time (seconds)'])
+
+        # Write the results for the current run
+        csv_writer.writerow([size, total_subsidy, execution_time])
+
+    print(f"Execution time = {execution_time} seconds")
