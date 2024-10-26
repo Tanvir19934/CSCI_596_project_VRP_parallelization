@@ -132,27 +132,28 @@ def parallel_lp():
         #print(f"Total subsidy = {total_BB + total_IR + total_S}")
         total_subsidy = total_BB + total_IR + total_S
         # Return results only from the root process
-        return size, total_subsidy
+        return size, total_subsidy, rank
 
     else:
         # Non-root processes return none values to avoid NoneType errors
-        return None, None
+        return None, None, None
 
 if __name__ == "__main__":
     start_time = time.perf_counter()
-    size, total_subsidy = parallel_lp()
+    size, total_subsidy, rank = parallel_lp()
     end_time = time.perf_counter()
     execution_time = end_time - start_time
 
-    # Write results to CSV in append mode
-    with open('results.csv', 'a', newline='') as csvfile:
-        csv_writer = csv.writer(csvfile)
+    if rank == 0:
+        # Write results to CSV in append mode
+        with open('results.csv', 'a', newline='') as csvfile:
+            csv_writer = csv.writer(csvfile)
 
-        # Write header only if the file is empty
-        if csvfile.tell() == 0:
-            csv_writer.writerow(['num_processor', 'Total Subsidy', 'Execution Time (seconds)'])
+            # Write header only if the file is empty
+            if csvfile.tell() == 0:
+                csv_writer.writerow(['num_processor', 'Total Subsidy', 'Execution Time (seconds)'])
 
-        # Write the results for the current run
-        csv_writer.writerow([size, total_subsidy, execution_time])
+            # Write the results for the current run
+            csv_writer.writerow([size, total_subsidy, execution_time])
 
-    print(f"Execution time = {execution_time} seconds")
+        print(f"Execution time = {execution_time} seconds")
