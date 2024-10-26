@@ -1,7 +1,7 @@
 utils.py
 config.py
 .DS_Store
-
+*.pyc
 # Ignore all .pkl files
 *.pkl
 
