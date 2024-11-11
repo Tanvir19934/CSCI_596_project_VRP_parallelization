@@ -64,7 +64,7 @@ def lp(route, standalone_cost_degree_2,N_whole):
     mdl.setObjective(e_BB + (quicksum(e_IR[i] for i in N_lp)) + (quicksum(e_S[i] for i in N_lp)))
 
 
-    mdl.write("/Users/tanvirkaisar/Library/CloudStorage/OneDrive-UniversityofSouthernCalifornia/CVRP/Codes/coalition.lp")
+    #mdl.write("/Users/tanvirkaisar/Library/CloudStorage/OneDrive-UniversityofSouthernCalifornia/CVRP/Codes/coalition.lp")
     mdl.optimize()
     def get_vars(item):
        vars = [var for var in mdl.getVars() if f"{item}" in var.VarName]
