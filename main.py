@@ -147,7 +147,7 @@ if __name__ == "__main__":
 
     if rank == 0:
         # Write results to CSV in append mode
-        with open('results.csv', 'a', newline='') as csvfile:
+        with open(f'results{n}.csv', 'a', newline='') as csvfile:
             csv_writer = csv.writer(csvfile)
 
             # Write header only if the file is empty
