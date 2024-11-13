@@ -63,6 +63,11 @@ def lp(route, standalone_cost_degree_2,N_whole):
 
     mdl.setObjective(e_BB + (quicksum(e_IR[i] for i in N_lp)) + (quicksum(e_S[i] for i in N_lp)))
 
+    mdl.update()
+    # Calculate the number of variables
+    num_vars = mdl.NumVars
+    # Calculate the number of constraints
+    num_constraints = mdl.NumConstrs
 
     #mdl.write("/Users/tanvirkaisar/Library/CloudStorage/OneDrive-UniversityofSouthernCalifornia/CVRP/Codes/coalition.lp")
     mdl.optimize()
@@ -77,7 +82,7 @@ def lp(route, standalone_cost_degree_2,N_whole):
     e_BB_result = get_vars('e_BB')
     e_IR_result = get_vars('e_IR')
 
-    return p_result,e_S_result,e_BB_result,e_IR_result,route
+    return p_result,e_S_result,e_BB_result,e_IR_result,route, num_vars, num_constraints
 
 def parallel_lp():
     # Initialize MPI
@@ -108,21 +113,24 @@ def parallel_lp():
         # Combine results from all processes
         p_result_dict, e_S_result_dict = {}, {}
         e_BB_result_dict, e_IR_result_dict = {}, {}
-        total_p, total_S, total_IR, total_BB, total_ev_cost = 0, 0, 0, 0, 0
+        total_p, total_S, total_IR, total_BB, total_ev_cost, total_num_vars, total_num_constraints = 0, 0, 0, 0, 0, 0, 0
 
         for process_results in all_results:
-            for p_result, e_S_result, e_BB_result, e_IR_result, route in process_results:
+            for p_result, e_S_result, e_BB_result, e_IR_result, route, num_vars, num_constraints  in process_results:
                 # Store the results
                 p_result_dict.update(p_result)
                 e_S_result_dict.update(e_S_result)
                 e_BB_result_dict.update(e_BB_result)
                 e_IR_result_dict.update(e_IR_result)
 
+
                 # Aggregate totals
                 total_p += sum(p_result.values())
                 total_S += sum(e_S_result.values())
                 total_IR += sum(e_IR_result.values())
                 total_BB += sum(e_BB_result.values())
+                total_num_constraints += num_constraints
+                total_num_vars += num_vars
                 ev_cost, _ = ev_travel_cost(route)
                 total_ev_cost += ev_cost
 
@@ -133,15 +141,15 @@ def parallel_lp():
         #print(f"Total subsidy = {total_BB + total_IR + total_S}")
         total_subsidy = total_BB + total_IR + total_S
         # Return results only from the root process
-        return size, total_subsidy, rank
+        return size, total_subsidy, rank, total_num_vars, total_num_constraints
 
     else:
         # Non-root processes return none values to avoid NoneType errors
-        return None, None, None
+        return None, None, None, None, None
 
 if __name__ == "__main__":
     start_time = time.perf_counter()
-    size, total_subsidy, rank = parallel_lp()
+    size, total_subsidy, rank, total_num_vars, total_num_constraints = parallel_lp()
     end_time = time.perf_counter()
     execution_time = end_time - start_time
 
@@ -152,9 +160,9 @@ if __name__ == "__main__":
 
             # Write header only if the file is empty
             if csvfile.tell() == 0:
-                csv_writer.writerow(['num_processor', 'Total Subsidy', 'Execution Time (seconds)'])
+                csv_writer.writerow(['num_processor', 'Total Subsidy', 'Execution Time (seconds)', 'Total Number of Variables', 'Total Number of Constraints'])
 
             # Write the results for the current run
-            csv_writer.writerow([size, total_subsidy, execution_time])
+            csv_writer.writerow([size, total_subsidy, execution_time, total_num_vars, total_num_constraints])
 
         print(f"Execution time = {execution_time} seconds")
