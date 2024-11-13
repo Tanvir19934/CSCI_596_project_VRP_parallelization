@@ -19,7 +19,6 @@ def load_routes():
         ev_routes = loaded_dataframes[f'data{n}']
     else:
         raise KeyError("The key 'data' was not found in the loaded dataframes.")
-    print(len(ev_routes))
     return ev_routes
 
 
