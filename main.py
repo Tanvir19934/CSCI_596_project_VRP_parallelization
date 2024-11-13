@@ -7,7 +7,7 @@ from mpi4py import MPI
 import csv
 
 def load_routes():
-    filenames = ['data.pkl']
+    filenames = [f'data{n}.pkl']
     # Dictionary to hold the loaded dataframes
     loaded_dataframes = {}
     # Loop through the filenames and load each dataframe
@@ -15,10 +15,11 @@ def load_routes():
         with open(filename, 'rb') as file:
             loaded_dataframes[filename[:-4]] = pickle.load(file)  # Remove .pkl extension for key
     # Access the loaded dataframes
-    if 'data' in loaded_dataframes:
-        ev_routes = loaded_dataframes['data']
+    if f'data{n}' in loaded_dataframes:
+        ev_routes = loaded_dataframes[f'data{n}']
     else:
         raise KeyError("The key 'data' was not found in the loaded dataframes.")
+    print(len(ev_routes))
     return ev_routes
 
 
