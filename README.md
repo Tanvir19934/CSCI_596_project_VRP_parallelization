@@ -13,8 +13,9 @@ We then analyze the parallelization efficiency through strong scaling and weak s
 
 The strong scaling result is as we typically expect from parallelization. However, the weak scaling efficiency is low. This is because, even though the number of nodes are the typical measure of complexity in VRPs, it is not a perfect one. In fact, the complexity actually depends on the number of variables and the number of constraints. In this specific VRP problem, the number of variables scales linearly as the number of nodes increases. However, the number of constraints do not scale linearly with the number of nodes, rather it increases exponentially. This is why the weak scaling efficiency is so low. In other words, even though we increase the number of processors proportional to the number of nodes, the efficiecy drops because the number of constraints increases exponentially with the number of nodes (see the table below). So why do we use the number of nodes as the measure of complexity in the first place? This is because we cannot know apriori how the number of nodes and the number constraints will grow for linear programs. The number of nodes is typically selected to express the problem complexity, however, it does not always quite capture the problem complexity fully, as we have seen from this project.
 
-num_nodes	 num_var	 num_constr	   factor_var	  factor_constr
-    50	       162	       2466	           1	           1
-    100	       328	       9932	          2.02	          4.03
-    200	       666	       39870	      4.11	          16.17
-    400	       1270        149724	      7.84	          60.72
+| num_nodes | num_var | num_constr | factor_var | factor_constr |
+|:---------:|:-------:|:----------:|:----------:|:-------------:|
+|     50    |   162   |    2466    |      1     |       1       |
+|    100    |   328   |    9932    |    2.02    |      4.03     |
+|    200    |   666   |    39870   |    4.11    |     16.17     |
+|    400    |   1270  |   149724   |    7.84    |     60.72     |
