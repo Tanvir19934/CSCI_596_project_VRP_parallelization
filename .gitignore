@@ -2,8 +2,6 @@ utils.py
 config.py
 .DS_Store
 *.pyc
-# Ignore all .pkl files
 *.pkl
-
-# Ignore all folders (and their contents)
+*.csv
 */
