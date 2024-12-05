@@ -26,9 +26,14 @@ The strong scaling result is as we typically expect from parallelization. Howeve
 |    200    |   666   |    39870   |    4.11    |     16.17     |
 |    400    |   1270  |   149724   |    7.84    |     60.72     |
 
-# Final result
+# Final result (modified weak scaling plot with number of constraints as workload)
 
-Just to verify that the weak scaling, in this case, should be done with respect to the number of constraints instead of the number of nodes, we run another simulation where we increase the number of processors with respect to the constraints. For example, we employ 4 workers for the second data point since it has approximately 4 times more constraints than the first data point. Similarly, for the third data point we employ 16 nodes. We omit the last case since it has around 60 times more constraints than the first data point and we would need a lot of processors for that. The results are presented below:
+Just to verify that the weak scaling in this case should be done with respect to the number of constraints instead of the number of nodes, we run another simulation where we increase the number of processors with respect to the constraints. For example, we employ 4 workers for the second data point since it has approximately 4 times more constraints than the first data point. Similarly, for the third data point we employ 16 nodes. We omit the last case since it has around 60 times more constraints than the first data point and we would need a lot of processors for that. The updated plot for weak scaling is presented below:
 
+![alt text](image-2.png)
+
+Note that this is just to test our theory that in this particular case, the workload increases with respect to the number of constraints. In practice, we do not know how the number of constraints will grow for a problem instance beforehand and therefore, number of nodes are usually used as the measure of complexity for VRPs.
 
 # Conclusion
+
+The post-processing of VRP subtours gives a perfect application of parallelization. From this project, we learn that even though the number of nodes is the standard measure of complexity for VRP problems, the scalability analysis (especially the weak scaling analysis) does not always produce expected results when the number of nodes is used as measure of workload. Instead, in this case we see that the number of constraints is a better measure of workload.
