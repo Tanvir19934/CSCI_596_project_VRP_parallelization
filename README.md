@@ -6,7 +6,7 @@ However, solving the VRP is not always the end. Sometimes we need to do some pos
 
 In this project, we consider solving a VRP that has around 400 individual nodes and the initial heuristic produces approximately 151 routes (the initial heuristic is not provided here, only the routes produced by the heuristic are provided in a .pkl file, this file acts as the input for the main.py program). We consider doing the post-processing step for these 151 routes in parallel distributed among multiple processors.
 
-We then analyze the parallelization efficiency through strong scaling and weak scaling. 
+e use OpenMP API in Python to do the parallelization. We then analyze the parallelization efficiency through strong scaling and weak scaling. 
 
 ![alt text](image.png)
 ![alt text](image-1.png)
@@ -19,3 +19,5 @@ The strong scaling result is as we typically expect from parallelization. Howeve
 |    100    |   328   |    9932    |    2.02    |      4.03     |
 |    200    |   666   |    39870   |    4.11    |     16.17     |
 |    400    |   1270  |   149724   |    7.84    |     60.72     |
+
+Just to verify that the weak scaling in this case should be done with respect to the number of constraints instead of the number of nodes, we run another simulation where we increase the number of processor with respect to the constraints. For example, we employ 4 workers for the second data point since it has approximately 4 times more constraints than the first data point. Similarly, for the third data point we employ 16 nodes. We omit the last case since it has around 60 times more constraints than the first data point and we would need a lot of processors for that. The results are presented below:
